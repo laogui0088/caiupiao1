@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统接口测试工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .test-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .test-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .log-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .log-success { color: #4ec9b0; }
+        .log-error { color: #f48771; }
+        .log-info { color: #569cd6; }
+        .log-warning { color: #dcdcaa; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 系统接口测试工具</h1>
+            <p class="subtitle">实时检测幸运飞艇、时时彩游戏接口状态</p>
+        </div>
+        
+        <div class="test-section">
+            <div class="section-title">🔌 WebSocket连接测试</div>
+            <div class="test-item">
+                <span class="test-name">幸运飞艇 WebSocket (端口 15531)</span>
+                <span class="test-status status-pending" id="ws-xyft-status">等待测试</span>
+            </div>
+            <div class="test-item">
+                <span class="test-name">时时彩 WebSocket (端口 15532)</span>
+                <span class="test-status status-pending" id="ws-ssc-status">等待测试</span>
+            </div>
+            <button class="btn" onclick="testWebSockets()">开始测试</button>
+        </div>
+        
+        <div class="test-section">
+            <div class="section-title">🎯 API接口测试</div>
+            <div class="grid">
+                <div class="test-item">
+                    <span class="test-name">获取用户信息</span>
+                    <span class="test-status status-pending" id="api-user-status">等待测试</span>
+                </div>
+                <div class="test-item">
+                    <span class="test-name">获取游戏配置</span>
+                    <span class="test-status status-pending" id="api-config-status">等待测试</span>
+                </div>
+                <div class="test-item">
+                    <span class="test-name">幸运飞艇开奖数据</span>
+                    <span class="test-status status-pending" id="api-xyft-status">等待测试</span>
+                </div>
+                <div class="test-item">
+                    <span class="test-name">时时彩开奖数据</span>
+                    <span class="test-status status-pending" id="api-ssc-status">等待测试</span>
+                </div>
+            </div>
+            <button class="btn" onclick="testAPIs()" style="margin-top: 15px;">开始测试</button>
+        </div>
+        
+        <div class="test-section">
+            <div class="section-title">📊 测试日志</div>
+            <div class="log-container" id="log-container">
+                <div class="log-info">[INFO] 准备就绪，点击上方按钮开始测试...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const logContainer = document.getElementById('log-container');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logClass = `log-${type}`;
+            const typeLabel = {
+                'success': '✓',
+                'error': '✗',
+                'info': 'ℹ',
+                'warning': '⚠'
+            }[type];
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = logClass;
+            logEntry.textContent = `[${timestamp}] ${typeLabel} ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.className = `test-status status-${status}`;
+            element.textContent = text;
+        }
+        
+        // WebSocket测试
+        function testWebSockets() {
+            log('开始测试 WebSocket 连接...', 'info');
+            
+            // 测试幸运飞艇
+            testWebSocket('幸运飞艇', 15531, 'ws-xyft-status');
+            
+            // 测试时时彩
+            setTimeout(() => {
+                testWebSocket('时时彩', 15532, 'ws-ssc-status');
+            }, 1000);
+        }
+        
+        function testWebSocket(name, port, statusId) {
+            log(`正在连接 ${name} WebSocket (端口 ${port})...`, 'info');
+            
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${location.hostname}:${port}`;
+            
+            try {
+                const ws = new WebSocket(wsUrl);
+                
+                ws.onopen = function() {
+                    log(`${name} WebSocket 连接成功! 🎉`, 'success');
+                    updateStatus(statusId, 'success', '✓ 连接成功');
+                    ws.close();
+                };
+                
+                ws.onerror = function(error) {
+                    log(`${name} WebSocket 连接失败! ❌`, 'error');
+                    log(`错误详情: ${error}`, 'error');
+                    updateStatus(statusId, 'error', '✗ 连接失败');
+                };
+                
+                ws.onclose = function() {
+                    log(`${name} WebSocket 连接已关闭`, 'info');
+                };
+                
+                // 超时检测
+                setTimeout(() => {
+                    if (ws.readyState !== WebSocket.OPEN) {
+                        ws.close();
+                        log(`${name} WebSocket 连接超时`, 'warning');
+                        updateStatus(statusId, 'error', '✗ 超时');
+                    }
+                }, 5000);
+                
+            } catch (e) {
+                log(`${name} WebSocket 异常: ${e.message}`, 'error');
+                updateStatus(statusId, 'error', '✗ 异常');
+            }
+        }
+        
+        // API测试
+        function testAPIs() {
+            log('开始测试 API 接口...', 'info');
+            
+            // 测试用户信息
+            testAPI('获取用户信息', '/index.php/Home/Api/get_user_info', 'api-user-status');
+            
+            // 测试游戏配置
+            setTimeout(() => {
+                testAPI('获取游戏配置', '/index.php/Home/Api/get_config', 'api-config-status');
+            }, 500);
+            
+            // 测试幸运飞艇数据
+            setTimeout(() => {
+                testAPI('幸运飞艇开奖数据', '/index.php/Home/Api/get_xyft_data', 'api-xyft-status');
+            }, 1000);
+            
+            // 测试时时彩数据
+            setTimeout(() => {
+                testAPI('时时彩开奖数据', '/index.php/Home/Api/get_ssc_data', 'api-ssc-status');
+            }, 1500);
+        }
+        
+        function testAPI(name, url, statusId) {
+            log(`正在测试 ${name}...`, 'info');
+            
+            fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        log(`${name} 接口响应成功! ✓`, 'success');
+                        updateStatus(statusId, 'success', '✓ 成功');
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                })
+                .then(data => {
+                    log(`${name} 返回数据: ${JSON.stringify(data).substring(0, 100)}...`, 'info');
+                })
+                .catch(error => {
+                    log(`${name} 接口错误: ${error.message}`, 'error');
+                    updateStatus(statusId, 'error', '✗ 失败');
+                });
+        }
+        
+        // 页面加载完成
+        window.onload = function() {
+            log('系统接口测试工具已就绪', 'success');
+            log(`当前协议: ${location.protocol}`, 'info');
+            log(`当前域名: ${location.hostname}`, 'info');
+        };
+    </script>
+</body>
+</html>

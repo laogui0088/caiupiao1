@@ -1,0 +1,513 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,viewport-fit=cover">
+    <meta content="no" name="apple-touch-fullscreen" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>个人中心 - 彩票系统</title>
+    <script src="__PUBLIC__/Home//statics/web/js/jquery.1.8.2.min.js"></script>
+    <script src="/images/js/sizeChange.js"></script>
+    <style>
+        :root { 
+            --brand-primary: #1a1a2e;
+            --brand-accent: #16213e;
+            --brand-highlight: #0f3460;
+            --brand-gold: #d4af37;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-text-primary: #1f2937;
+            --color-text-secondary: #6b7280;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+            --shadow-lg: 0 10px 24px rgba(0,0,0,.15);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            margin: 0;
+            padding: 0;
+        }
+        
+        body { 
+            margin: 0; 
+            background: #f5f7fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            color: var(--color-text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .page { 
+            max-width: 750px; 
+            margin: 0 auto; 
+            padding: 16px 14px 80px;
+            min-height: 100vh;
+        }
+        
+        .card { 
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 16px;
+            transition: box-shadow .3s ease;
+            border: 1px solid rgba(0,0,0,.04);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* 用户资料卡头部 - 专业商务风格 */
+        .profile-header { 
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            padding: 24px 20px;
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(212,175,55,.08);
+            border-radius: 50%;
+        }
+        
+        .profile-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(212,175,55,.05);
+            border-radius: 50%;
+        }
+        
+        .avatar { 
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #fff;
+            border: 3px solid rgba(212,175,55,.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,.2);
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+        
+        .avatar img { 
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .uinfo {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .uinfo h2 { 
+            margin: 0 0 6px 0;
+            font-size: 20px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,.15);
+            letter-spacing: 0.5px;
+        }
+        
+        .uinfo p { 
+            margin: 0;
+            font-size: 13px;
+            opacity: .85;
+            font-weight: 400;
+        }
+        
+        /* 资产统计区域 - 金融风格 */
+        .stats { 
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            background: #fafafa;
+            border-top: 1px solid rgba(0,0,0,.06);
+        }
+        
+        .stat { 
+            text-align: center;
+            padding: 20px 12px;
+            background: #fff;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            transition: all .2s ease;
+            border-right: 1px solid rgba(0,0,0,.06);
+            position: relative;
+        }
+        
+        .stat:last-child {
+            border-right: none;
+        }
+        
+        .stat:hover {
+            background: #fafbfc;
+        }
+        
+        .stat strong { 
+            display: block;
+            font-size: 22px;
+            margin-top: 8px;
+            color: var(--brand-primary);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        .stat.positive strong {
+            color: var(--color-success);
+        }
+        
+        .stat.negative strong {
+            color: var(--color-danger);
+        }
+        
+        /* 快捷操作按钮 - 专业风格 */
+        .actions { 
+            display: flex;
+            gap: 12px;
+            padding: 20px;
+            background: #fafbfc;
+        }
+        
+        .btn { 
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            box-shadow: var(--shadow-sm);
+            transition: all .2s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(16,185,129,.3);
+        }
+        
+        .btn-warning { 
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .btn-warning:hover {
+            box-shadow: 0 6px 16px rgba(245,158,11,.3);
+        }
+        
+        .btn img { 
+            width: 18px;
+            height: 18px;
+            filter: brightness(0) invert(1);
+        }
+        
+        /* 功能菜单区域 */
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin: 24px 0 12px;
+            padding-left: 4px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: var(--brand-primary);
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        
+        .grid { 
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: rgba(0,0,0,.06);
+        }
+        
+        .grid a { 
+            text-decoration: none;
+            color: var(--color-text-primary);
+        }
+        
+        .menu-item { 
+            background: #fff;
+            padding: 24px 12px;
+            text-align: center;
+            transition: all .2s ease;
+            position: relative;
+        }
+        
+        .menu-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 60%;
+            height: 2px;
+            background: var(--brand-primary);
+            transition: transform .3s ease;
+        }
+        
+        .menu-item:active {
+            background: #fafbfc;
+        }
+        
+        .menu-item:hover::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+        
+        .menu-item img { 
+            width: 36px;
+            height: 36px;
+            display: block;
+            margin: 0 auto 10px;
+            transition: transform .2s ease;
+            filter: grayscale(0.2);
+        }
+        
+        .menu-item:hover img {
+            transform: translateY(-2px);
+            filter: grayscale(0);
+        }
+        
+        .menu-item p { 
+            margin: 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+        }
+        
+        .menu-item:hover p {
+            color: var(--brand-primary);
+        }
+        
+        /* 简洁的动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .card {
+            animation: fadeIn .4s ease;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) { 
+            .page { padding: 12px 12px 80px; }
+            .profile-header { padding: 20px 16px; }
+            .avatar { width: 64px; height: 64px; }
+            .uinfo h2 { font-size: 18px; }
+            .stat strong { font-size: 20px; }
+            .btn { padding: 12px 16px; font-size: 14px; }
+            .section-title { font-size: 15px; margin: 20px 0 12px; }
+        }
+        
+        @media (min-width: 769px) {
+            .page { padding: 24px 20px 100px; }
+            .grid { grid-template-columns: repeat(4, 1fr); }
+            .profile-header { padding: 28px 24px; }
+        }
+        
+        /* 适配iOS安全区域 */
+        @supports (padding: max(0px)) {
+            .page {
+                padding-bottom: max(80px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <!-- 用户资料卡片 -->
+        <section class="card">
+            <div class="profile-header">
+                <div class="avatar">
+                    <if condition="$user['headimgurl']">
+                        <img src="{$user.headimgurl}" alt="用户头像">
+                    <else />
+                        <img src="/images/default.png" alt="默认头像">
+                    </if>
+                </div>
+                <div class="uinfo">
+                    <h2>{$user.nickname}</h2>
+                    <p>账户ID: {$user.id}</p>
+                </div>
+            </div>
+            
+            <!-- 资产统计 -->
+            <div class="stats">
+                <div class="stat">
+                    账户余额
+                    <strong>{$user.points}</strong>
+                </div>
+                <div class="stat positive">
+                    今日中奖
+                    <strong>+{$user['sum_add']}</strong>
+                </div>
+                <div class="stat <if condition='$user["ying"] egt 0'>positive<else />negative</if>">
+                    今日盈亏
+                    <strong><if condition='$user["ying"] egt 0'>+</if>{$user['ying']}</strong>
+                </div>
+            </div>
+            
+            <!-- 快捷操作 -->
+            <div class="actions">
+                <a class="btn btn-primary" href="{:U('/Home/Fen/addpage')}">
+                    <img src="/images/chongzhi.png" alt="">
+                    <span>立即充值</span>
+                </a>
+                <a class="btn btn-warning" href="{:U('Home/Fen/postal')}">
+                    <img src="/images/tixian.png" alt="">
+                    <span>申请提现</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- 功能菜单区域 -->
+        <h3 class="section-title">功能菜单</h3>
+        <section class="card">
+            <div class="grid">
+                <a href="{:U('/Home/User/setting')}">
+                    <div class="menu-item">
+                        <img src="/images/zhanghuxinxi.png" alt="账户信息">
+                        <p>账户信息</p>
+                    </div>
+                </a>
+                <a href="{:U('/Home/User/gonggao')}">
+                    <div class="menu-item">
+                        <img src="/images/xiaoxigonggao.png" alt="消息公告">
+                        <p>消息公告</p>
+                    </div>
+                </a>
+                <a href="{:U('Home/Run/history')}">
+                    <div class="menu-item">
+                        <img src="/images/touzhujilu.png" alt="购买记录">
+                        <p>购买记录</p>
+                    </div>
+                </a>
+                <a href="{:U('/Home/User/fenxia')}">
+                    <div class="menu-item">
+                        <img src="/images/zijinmingxi.png" alt="资金明细">
+                        <p>资金明细</p>
+                    </div>
+                </a>
+                <a href="{:C('zxkf')}">
+                    <div class="menu-item">
+                        <img src="/images/kefuzhongxin.png" alt="客服中心">
+                        <p>在线客服</p>
+                    </div>
+                </a>
+                <a href="{:U('Home/User/gonggao')}">
+                    <div class="menu-item">
+                        <img src="/images/bangzhuzhongxin.png" alt="平台公告">
+                        <p>平台公告</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </main>
+    <script>
+        // 简洁的交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 触摸反馈
+            document.querySelectorAll('.btn, .menu-item').forEach(el => {
+                el.addEventListener('touchstart', function() {
+                    this.style.opacity = '0.85';
+                }, {passive: true});
+                
+                el.addEventListener('touchend', function() {
+                    setTimeout(() => { this.style.opacity = '1'; }, 150);
+                }, {passive: true});
+            });
+            
+            // 数字滚动动画
+            const animateNumber = (el, target) => {
+                const duration = 1000;
+                const start = 0;
+                const startTime = performance.now();
+                
+                const update = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const value = Math.floor(start + (target - start) * progress);
+                    el.textContent = (target >= 0 ? '+' : '') + value;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    }
+                };
+                
+                requestAnimationFrame(update);
+            };
+            
+            // 统计数字动画
+            const stats = document.querySelectorAll('.stat strong');
+            if (stats.length && 'IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            const text = entry.target.textContent;
+                            const num = parseFloat(text.replace(/[^0-9.-]/g, ''));
+                            if (!isNaN(num)) {
+                                animateNumber(entry.target, num);
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                stats.forEach(stat => observer.observe(stat));
+            }
+        });
+    </script>
+    <?php $a=5; // 底部导航高亮“我的” ?>
+    <include  file="./Template/Home/Run/footer.html" />
+</body>
+</html>
